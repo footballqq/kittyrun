@@ -517,47 +517,61 @@
         </div>
 
         <!-- 9. Sky Drop Boutique & Shop Modal -->
+        <!-- 9. Sky Drop Boutique & Shop Modal (Streamlined Carousel & Sticky Confirm) -->
         <div class="modal-overlay hidden" id="shopModal">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <div class="modal-title" data-i18n="shopTitle">🏪 Kitty Boutique</div>
-                    <button class="modal-close-btn" id="closeShopBtn">✕</button>
+            <div class="modal-card shop-modal-card">
+                <!-- Header with Title, Sticky Coins Pill & Close Button -->
+                <div class="shop-modal-header">
+                    <div class="shop-header-title">
+                        <span class="icon">🏪</span>
+                        <span data-i18n="shopTitle">Kitty Boutique</span>
+                    </div>
+                    <!-- Prominent Sticky Coins Pill: ALWAYS VISIBLE -->
+                    <div class="shop-coins-pill" title="Sweet Coins">
+                        <span class="coin-icon">🪙</span>
+                        <span class="coin-val" id="shopCoinsVal">0</span>
+                    </div>
+                    <button class="modal-close-btn" id="closeShopBtn" title="Close">✕</button>
                 </div>
 
-                <!-- Currency Bar -->
-                <div class="shop-currency-bar">
-                    <span data-i18n="shopCoinsLabel">Sweet Coins:</span>
-                    <span class="shop-coin-num" id="shopCoinsVal">0</span>
-                    <span class="shop-tip" data-i18n="shopCoinsTip">(Catch treats & boxes to earn coins)</span>
-                </div>
-
-                <!-- Category 1: Skins -->
-                <div class="shop-section">
-                    <div class="shop-sec-title" data-i18n="shopSecSkins">🐱 Kitty Breeds & Skins</div>
-                    <div class="shop-grid" id="shopSkinsGrid">
-                        <!-- Populated by JS -->
+                <!-- Live Mascot Preview Mini Stage -->
+                <div class="shop-preview-stage">
+                    <div class="shop-preview-ring">
+                        <canvas id="shopMascotCanvas" width="100" height="100" style="width: 100px; height: 100px; display: block;"></canvas>
+                    </div>
+                    <div class="shop-preview-info">
+                        <div class="shop-preview-name" id="shopPreviewName">Marshmallow White</div>
+                        <div class="shop-preview-desc" id="shopPreviewDesc">Classic sweet white kitty</div>
                     </div>
                 </div>
 
-                <!-- Category 2: Hats -->
-                <div class="shop-section">
-                    <div class="shop-sec-title" data-i18n="shopSecHats">🎀 Hats & Accessories</div>
-                    <div class="shop-grid" id="shopHatsGrid">
-                        <!-- Populated by JS -->
-                    </div>
+                <!-- Category Segmented Tabs (Like Homepage mode pill) -->
+                <div class="shop-category-tabs">
+                    <button class="shop-tab-btn active" data-shop-cat="skins" id="shopTabSkins">
+                        <span data-i18n="tabSkins">🐱 Breeds</span>
+                    </button>
+                    <button class="shop-tab-btn" data-shop-cat="hats" id="shopTabHats">
+                        <span data-i18n="tabHats">🎀 Hats</span>
+                    </button>
+                    <button class="shop-tab-btn" data-shop-cat="supplies" id="shopTabSupplies">
+                        <span data-i18n="tabSupplies">💖 Items</span>
+                    </button>
                 </div>
 
-                <!-- Category 3: Battle Supplies -->
-                <div class="shop-section">
-                    <div class="shop-sec-title" data-i18n="shopSecSupplies">💖 Battle Emergency Supplies</div>
-                    <div class="shop-grid" id="shopSuppliesGrid">
-                        <!-- Populated by JS -->
+                <!-- Horizontal Carousel Slider (左右滑动) -->
+                <div class="shop-carousel-wrap">
+                    <button class="shop-arrow-btn prev" id="shopPrevBtn" title="Previous Item">‹</button>
+                    <div class="shop-cards-carousel" id="shopCardsCarousel">
+                        <!-- Populated by JS for selected category -->
                     </div>
+                    <button class="shop-arrow-btn next" id="shopNextBtn" title="Next Item">›</button>
                 </div>
 
-                <div class="btn-row" style="margin-top: 14px;">
-                    <button class="btn-candy" id="shopConfirmBtn">
-                        <span data-i18n="shopClose">🐾 Close & Play</span>
+                <!-- Sticky Bottom Action Bar with Large Confirm Button -->
+                <div class="shop-bottom-bar">
+                    <button class="btn-play-hero btn-shop-confirm" id="shopConfirmBtn">
+                        <span class="play-icon">🐾</span>
+                        <span data-i18n="shopClose">Close & Play</span>
                     </button>
                 </div>
             </div>
@@ -570,7 +584,7 @@
 
     <!-- Bottom keyboard hint -->
     <div class="footer-hint" data-i18n="footerHint">
-        Controls: Drag Mouse / Touch or use Arrow Keys ⬅️ ➡️, Shift to Dash, Space to Pause, F for Fullscreen
+        Controls: Drag Mouse / Touch or use Arrow Keys ⬅️ ➡️, Shift to Dash (5s CD), Space to Pause, F for Fullscreen
     </div>
 
     <!-- Scripts -->

@@ -27,9 +27,11 @@
   - When returning, the start screen automatically displays a compact resume banner to jump straight back into the run!
 - **🎁 Sky-Drop Mystery Boutique**:
   - Parachute boutique boxes slowly float down from the sky as you rack up points. Catch them to unlock the shop mid-game with +25 bonus coins!
-- **🏪 Boutique & Cat Wardrobe**:
-  - Earn Sweet Coins by catching treats, achieving combos, and grabbing stars.
-  - Unlock new breeds, hats, ribbons, and emergency supplies (Heart Herbs & Rainbow Shields).
+- **🏪 Streamlined Boutique & Cat Wardrobe (Horizontal Carousel & Sticky Controls)**:
+  - **Always-Visible Currency Pill**: A bright gold coin pill (`🪙`) is permanently anchored in the header so you can always check your coin balance at a glance.
+  - **Live Mascot Preview Stage**: Preview any kitty skin or hat on the live animated preview mascot before buying or equipping!
+  - **Segmented Category Tabs & Horizontal Carousel (左右滑动)**: Switch easily between `[🐱 Breeds]`, `[🎀 Hats]`, and `[💖 Items]`. Items slide horizontally with smooth `‹` and `›` arrow buttons and natural touch swipe.
+  - **Always-Clickable Sticky Confirm Button**: The large candy `🐾 Close & Play` button is locked to the bottom of the card, completely eliminating scrolling issues and off-screen button clipping!
 - **📜 Local Career Records & Stats**:
   - Tracks total games, total sweets caught, best scores for both modes, and a log of recent matches.
 - **🏳️ Early Settle Cash-In**:
@@ -39,8 +41,9 @@
 - **🔥 Combo Streaks & Drop Penalty**:
   - Consecutive catches increase your combo score multiplier up to 2.5x with milestone rewards at 5, 10, 15, and 20 combos.
   - Dropping any sweet immediately resets your combo streak!
-- **💨 Dash Ability**:
-  - Press <kbd>Shift</kbd>, double-tap the screen, or press the Dash button for an instant speed burst.
+- **💨 Dash Ability (5-Second Cooldown)**:
+  - Press <kbd>Shift</kbd>, double-tap the screen, or click the Dash button for an instant speed burst.
+  - Features a **5-second cooldown** with real-time countdown display (`⏳ 4.3s`) and ready pop animation!
 - **🖼️ Share Poster Generator**:
   - Generate cute commemorative posters with your mascot, score, combo rank, and timestamp to download as PNG or copy share text to clipboard!
 

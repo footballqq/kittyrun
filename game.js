@@ -127,8 +127,9 @@ class CuteCatGame {
 
         this.breeds = ['white', 'orange', 'black', 'capybara'];
         this.hats = ['bow', 'chef', 'flower', 'crown', 'tophat', 'glasses', 'none'];
+        this.currentShopTab = 'skins';
 
-        // Mascot preview canvas setup
+        // Mascot preview canvas setup (Start screen)
         this.mascotCanvas = document.getElementById('mascotCanvas');
         if (this.mascotCanvas) {
             this.mascotCtx = this.mascotCanvas.getContext('2d');
@@ -136,6 +137,16 @@ class CuteCatGame {
             this.mascotCanvas.width = 150 * mDpr;
             this.mascotCanvas.height = 150 * mDpr;
             this.mascotCtx.scale(mDpr, mDpr);
+        }
+
+        // Shop live preview canvas setup
+        this.shopMascotCanvas = document.getElementById('shopMascotCanvas');
+        if (this.shopMascotCanvas) {
+            this.shopMascotCtx = this.shopMascotCanvas.getContext('2d');
+            const smDpr = window.devicePixelRatio || 1;
+            this.shopMascotCanvas.width = 100 * smDpr;
+            this.shopMascotCanvas.height = 100 * smDpr;
+            this.shopMascotCtx.scale(smDpr, smDpr);
         }
 
         // Achievements system
@@ -428,6 +439,37 @@ class CuteCatGame {
         document.getElementById('gameOverShopBtn').addEventListener('click', showShop);
         document.getElementById('closeShopBtn').addEventListener('click', () => this.closeShopModal());
         document.getElementById('shopConfirmBtn').addEventListener('click', () => this.closeShopModal());
+
+        // Shop category tab buttons
+        document.querySelectorAll('.shop-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cat = e.currentTarget.getAttribute('data-shop-cat');
+                if (cat) {
+                    window.cuteAudio.playPop(480);
+                    this.currentShopTab = cat;
+                    this.renderShopModal();
+                    const carousel = document.getElementById('shopCardsCarousel');
+                    if (carousel) carousel.scrollLeft = 0;
+                }
+            });
+        });
+
+        // Shop carousel left/right arrow buttons
+        const shopPrevBtn = document.getElementById('shopPrevBtn');
+        const shopNextBtn = document.getElementById('shopNextBtn');
+        const shopCarousel = document.getElementById('shopCardsCarousel');
+        if (shopPrevBtn && shopCarousel) {
+            shopPrevBtn.addEventListener('click', () => {
+                window.cuteAudio.playPop(420);
+                shopCarousel.scrollBy({ left: -140, behavior: 'smooth' });
+            });
+        }
+        if (shopNextBtn && shopCarousel) {
+            shopNextBtn.addEventListener('click', () => {
+                window.cuteAudio.playPop(420);
+                shopCarousel.scrollBy({ left: 140, behavior: 'smooth' });
+            });
+        }
 
         // Save & Resume Game handlers
         document.getElementById('saveAndExitBtn').addEventListener('click', () => {
@@ -750,82 +792,111 @@ class CuteCatGame {
         return item.desc;
     }
 
+    drawShopMascotPreview() {
+        if (!this.shopMascotCtx) {
+            this.shopMascotCanvas = document.getElementById('shopMascotCanvas');
+            if (this.shopMascotCanvas) {
+                this.shopMascotCtx = this.shopMascotCanvas.getContext('2d');
+                const smDpr = window.devicePixelRatio || 1;
+                this.shopMascotCanvas.width = 100 * smDpr;
+                this.shopMascotCanvas.height = 100 * smDpr;
+                this.shopMascotCtx.scale(smDpr, smDpr);
+            }
+        }
+        if (!this.shopMascotCtx) return;
+        const sCtx = this.shopMascotCtx;
+        sCtx.clearRect(0, 0, 100, 100);
+
+        const oldCtx = this.ctx;
+        this.ctx = sCtx;
+        // Draw preview cat centered in 100x100 preview box
+        this.drawCat(50, 68);
+        this.ctx = oldCtx;
+    }
+
     renderShopModal() {
         const coinsVal = document.getElementById('shopCoinsVal');
         if (coinsVal) coinsVal.textContent = this.coins;
 
         const t = (k, p) => (window.I18N ? window.I18N.t(k, p) : k);
 
-        // 1. Skins
-        const skinsGrid = document.getElementById('shopSkinsGrid');
-        if (skinsGrid) {
-            skinsGrid.innerHTML = this.shopCatalog.skins.map(s => {
-                const isEquipped = this.cat.breed === s.id;
-                const isOwned = this.ownedSkins.includes(s.id);
+        // 1. Update Category Tabs Active State
+        document.querySelectorAll('.shop-tab-btn').forEach(btn => {
+            const cat = btn.getAttribute('data-shop-cat');
+            if (cat === this.currentShopTab) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // 2. Update Live Preview Name & Description
+        const prevNameEl = document.getElementById('shopPreviewName');
+        const prevDescEl = document.getElementById('shopPreviewDesc');
+        const currentSkin = this.shopCatalog.skins.find(s => s.id === this.cat.breed) || this.shopCatalog.skins[0];
+        const currentHat = this.shopCatalog.hats.find(h => h.id === this.cat.accessory) || this.shopCatalog.hats[0];
+
+        if (this.currentShopTab === 'skins') {
+            if (prevNameEl) prevNameEl.textContent = this.getShopItemName('skins', currentSkin);
+            if (prevDescEl) prevDescEl.textContent = this.getShopItemDesc('skins', currentSkin);
+        } else if (this.currentShopTab === 'hats') {
+            if (prevNameEl) prevNameEl.textContent = this.getShopItemName('hats', currentHat);
+            if (prevDescEl) prevDescEl.textContent = this.getShopItemDesc('hats', currentHat);
+        } else {
+            if (prevNameEl) prevNameEl.textContent = t('tabSupplies');
+            if (prevDescEl) prevDescEl.textContent = t('shopSecSupplies');
+        }
+
+        // Draw preview mascot
+        this.drawShopMascotPreview();
+
+        // 3. Render Carousel Horizontal Cards for the active category
+        const carousel = document.getElementById('shopCardsCarousel');
+        const list = this.shopCatalog[this.currentShopTab] || [];
+        if (carousel) {
+            carousel.innerHTML = list.map(item => {
+                let isEquipped = false;
+                let isOwned = false;
+
+                if (this.currentShopTab === 'skins') {
+                    isEquipped = this.cat.breed === item.id;
+                    isOwned = this.ownedSkins.includes(item.id);
+                } else if (this.currentShopTab === 'hats') {
+                    isEquipped = this.cat.accessory === item.id;
+                    isOwned = this.ownedHats.includes(item.id);
+                } else {
+                    isEquipped = false;
+                    isOwned = false;
+                }
+
                 let btnHtml = '';
                 if (isEquipped) {
                     btnHtml = `<button class="shop-item-btn equipped" disabled>${t('equipped')}</button>`;
                 } else if (isOwned) {
-                    btnHtml = `<button class="shop-item-btn owned" data-action="equip" data-cat="skins" data-id="${s.id}">${t('equipBtn')}</button>`;
+                    btnHtml = `<button class="shop-item-btn owned" data-action="equip" data-cat="${this.currentShopTab}" data-id="${item.id}">${t('equipBtn')}</button>`;
+                } else if (this.currentShopTab === 'supplies') {
+                    btnHtml = `<button class="shop-item-btn buy" data-action="buy" data-cat="${this.currentShopTab}" data-id="${item.id}">🪙 ${item.price} ${t('useBtn')}</button>`;
                 } else {
-                    btnHtml = `<button class="shop-item-btn buy" data-action="buy" data-cat="skins" data-id="${s.id}">🪙 ${s.price} ${t('buyBtn')}</button>`;
+                    btnHtml = `<button class="shop-item-btn buy" data-action="buy" data-cat="${this.currentShopTab}" data-id="${item.id}">🪙 ${item.price} ${t('buyBtn')}</button>`;
                 }
+
+                const name = this.getShopItemName(this.currentShopTab, item);
+                const desc = this.getShopItemDesc(this.currentShopTab, item);
+
                 return `
-                    <div class="shop-card">
-                        <div class="icon">${s.icon}</div>
-                        <div class="name">${this.getShopItemName('skins', s)}</div>
-                        <div class="desc">${this.getShopItemDesc('skins', s)}</div>
+                    <div class="shop-carousel-card ${isEquipped ? 'equipped' : ''}">
+                        <div class="icon">${item.icon}</div>
+                        <div class="name" title="${name}">${name}</div>
+                        <div class="desc" title="${desc}">${desc}</div>
                         ${btnHtml}
                     </div>
                 `;
             }).join('');
-        }
 
-        // 2. Hats
-        const hatsGrid = document.getElementById('shopHatsGrid');
-        if (hatsGrid) {
-            hatsGrid.innerHTML = this.shopCatalog.hats.map(h => {
-                const isEquipped = this.cat.accessory === h.id;
-                const isOwned = this.ownedHats.includes(h.id);
-                let btnHtml = '';
-                if (isEquipped) {
-                    btnHtml = `<button class="shop-item-btn equipped" disabled>${t('equipped')}</button>`;
-                } else if (isOwned) {
-                    btnHtml = `<button class="shop-item-btn owned" data-action="equip" data-cat="hats" data-id="${h.id}">${t('equipBtn')}</button>`;
-                } else {
-                    btnHtml = `<button class="shop-item-btn buy" data-action="buy" data-cat="hats" data-id="${h.id}">🪙 ${h.price} ${t('buyBtn')}</button>`;
-                }
-                return `
-                    <div class="shop-card">
-                        <div class="icon">${h.icon}</div>
-                        <div class="name">${this.getShopItemName('hats', h)}</div>
-                        <div class="desc">${this.getShopItemDesc('hats', h)}</div>
-                        ${btnHtml}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // 3. Supplies
-        const suppliesGrid = document.getElementById('shopSuppliesGrid');
-        if (suppliesGrid) {
-            suppliesGrid.innerHTML = this.shopCatalog.supplies.map(sup => {
-                return `
-                    <div class="shop-card">
-                        <div class="icon">${sup.icon}</div>
-                        <div class="name">${this.getShopItemName('supplies', sup)}</div>
-                        <div class="desc">${this.getShopItemDesc('supplies', sup)}</div>
-                        <button class="shop-item-btn buy" data-action="buy" data-cat="supplies" data-id="${sup.id}">🪙 ${sup.price} ${t('useBtn')}</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Bind event listeners on buttons
-        const bindGridButtons = (grid) => {
-            if (!grid) return;
-            grid.querySelectorAll('button[data-action]').forEach(btn => {
-                btn.addEventListener('click', () => {
+            // Bind click listeners on the rendered buttons
+            carousel.querySelectorAll('button[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const action = btn.getAttribute('data-action');
                     const cat = btn.getAttribute('data-cat');
                     const id = btn.getAttribute('data-id');
@@ -836,11 +907,7 @@ class CuteCatGame {
                     }
                 });
             });
-        };
-
-        bindGridButtons(skinsGrid);
-        bindGridButtons(hatsGrid);
-        bindGridButtons(suppliesGrid);
+        }
     }
 
     buyShopItem(category, id) {
@@ -1017,24 +1084,29 @@ class CuteCatGame {
     }
 
     // ==========================================
-    // Dash / Rush Ability
+    // Dash / Rush Ability (5-second Cooldown)
     // ==========================================
     triggerDash() {
         if (this.state !== 'PLAYING') return;
         const now = performance.now();
-        if (now < this.dashCooldown) return;
+        if (now < this.dashCooldown) {
+            const remainSec = Math.max(0, ((this.dashCooldown - now) / 1000)).toFixed(1);
+            const msg = window.I18N ? window.I18N.t('dashCooldown', { sec: remainSec }) : `⏳ Dash CD: ${remainSec}s`;
+            this.showToast(msg, '⏳');
+            return;
+        }
 
-        this.dashCooldown = now + 900; // 0.9s cooldown
+        this.dashCooldown = now + 5000; // 5.0s cooldown
         window.cuteAudio.playDash();
 
         // Dash burst in moving direction or towards target
-        const dashDist = 120 * this.cat.facing;
+        const dashDist = 135 * this.cat.facing;
         this.cat.targetX = Math.max(40, Math.min(this.width - 40, this.cat.x + dashDist));
-        this.cat.squishX = 1.4;
-        this.cat.squishY = 0.7;
+        this.cat.squishX = 1.45;
+        this.cat.squishY = 0.65;
 
         // Visual dash trail particles
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 10; i++) {
             this.particles.push({
                 x: this.cat.x - (i * 10 * this.cat.facing),
                 y: this.cat.y + (Math.random() - 0.5) * 20,
@@ -1049,9 +1121,33 @@ class CuteCatGame {
             });
         }
 
+        this.addFloatingText('💨 DASH!', this.cat.x, this.cat.y - 30, '#FF4081', 18);
+
         // Haptic feedback if supported
         if (navigator.vibrate) {
             navigator.vibrate([25]);
+        }
+
+        this.updateDashButton(now);
+    }
+
+    updateDashButton(now) {
+        const btn = document.getElementById('mobileDashBtn');
+        if (!btn) return;
+        if (now < this.dashCooldown) {
+            const remaining = Math.max(0, ((this.dashCooldown - now) / 1000)).toFixed(1);
+            if (!btn.classList.contains('cooldown')) {
+                btn.classList.add('cooldown');
+            }
+            btn.innerHTML = `<span class="dash-icon">⏳</span><span class="dash-cd-num">${remaining}s</span>`;
+        } else {
+            if (btn.classList.contains('cooldown')) {
+                btn.classList.remove('cooldown');
+                const dashLabel = window.I18N ? window.I18N.t('dash') : 'DASH';
+                btn.innerHTML = `<span class="dash-icon">💨</span><span data-i18n="dash">${dashLabel}</span>`;
+                btn.classList.add('ready-pulse');
+                setTimeout(() => btn.classList.remove('ready-pulse'), 400);
+            }
         }
     }
 
@@ -1071,6 +1167,8 @@ class CuteCatGame {
         this.maxCombo = 0;
         this.timeLeft = 60000; // Reset 60s
         this.sweetsCaughtCount = 0;
+        this.dashCooldown = 0;
+        this.updateDashButton(performance.now());
         this.feverActive = false;
         this.feverTimer = 0;
         this.feverMeter = 0;
@@ -1630,6 +1728,9 @@ class CuteCatGame {
 
         if (this.state !== 'PLAYING') return;
 
+        // Update real-time Dash button 5s cooldown
+        this.updateDashButton(performance.now());
+
         // Countdown timer in Timed 60s Mode
         if (this.gameMode === 'timed') {
             this.timeLeft -= dt;
@@ -1841,6 +1942,12 @@ class CuteCatGame {
         // If start screen is visible, render interactive preview mascot
         if (this.state === 'START' && this.mascotCtx) {
             this.drawMascotPreview();
+        }
+
+        // If shop modal is open, render live shop mascot preview
+        const shopModal = document.getElementById('shopModal');
+        if (shopModal && !shopModal.classList.contains('hidden') && this.shopMascotCtx) {
+            this.drawShopMascotPreview();
         }
     }
 

@@ -38,7 +38,7 @@ const I18N = {
             items: "Items",
             catchHint: "Catch: 🍓 🍩 🐟 🧁 🥛 🧲 🛡️ ⏰ 🌟",
             avoidHint: "Avoid: 🌶️ 💣",
-            footerHint: "Controls: Drag Mouse / Touch or use Arrow Keys ⬅️ ➡️, Shift to Dash, Space to Pause, F for Fullscreen",
+            footerHint: "Controls: Drag Mouse / Touch or use Arrow Keys ⬅️ ➡️, Shift to Dash (5s CD), Space to Pause, F for Fullscreen",
 
             // Breeds
             breed_white: "Marshmallow White",
@@ -85,10 +85,13 @@ const I18N = {
             shopTitle: "🏪 Kitty Boutique",
             shopCoinsLabel: "Sweet Coins:",
             shopCoinsTip: "(Catch treats, stars, & boutique boxes to earn coins)",
+            tabSkins: "🐱 Breeds",
+            tabHats: "🎀 Hats",
+            tabSupplies: "💖 Items",
             shopSecSkins: "🐱 Kitty Breeds & Skins",
             shopSecHats: "🎀 Hats & Accessories",
             shopSecSupplies: "💖 Battle Emergency Supplies",
-            shopClose: "Close & Play",
+            shopClose: "🐾 Close & Play",
             equipped: "✨ Equipped",
             equipBtn: "🐾 Equip",
             buyBtn: "🪙 Buy",
@@ -97,6 +100,7 @@ const I18N = {
             unlockSkinToast: "Unlocked breed 【{name}】 & equipped!",
             unlockHatToast: "Unlocked hat 【{name}】 & worn!",
             equipToast: "Equipped 【{name}】!",
+            dashCooldown: "⏳ Dash on 5s cooldown ({sec}s)",
 
             // Shop Item Descs
             skin_white_desc: "Pure, fluffy, and sweet classic white kitty",
@@ -176,7 +180,7 @@ const I18N = {
             guideRuleFever: "🌟 FEVER Time: Catching Rainbow Stars fills energy and triggers 6 seconds of double score with zero hazards!",
             guideControlQ: "🕹️ Controls",
             guideControlMove: "Movement: Drag with mouse/touch, or use ⬅️ ➡️ / A D on keyboard.",
-            guideControlDash: "💨 Dash: Press Shift, double tap canvas, or click the Dash button for an instant speed burst!",
+            guideControlDash: "💨 Dash: Press Shift, double tap canvas, or click the Dash button for an instant speed burst (5s Cooldown)!",
             guideShopQ: "🏪 Boutique & 💾 Save System",
             guideShopDesc: "🎁 Mystery Boutique box drops from the sky every few hundred points! Catch it to open the shop & get 25 bonus coins. Pause anytime to save your run and resume later!",
 
@@ -256,7 +260,7 @@ const I18N = {
             items: "图鉴",
             catchHint: "快接住: 🍓 🍩 🐟 🧁 🥛 🧲 🛡️ ⏰ 🌟",
             avoidHint: "避开危险: 🌶️ 💣",
-            footerHint: "控制指南: 拖动鼠标/触摸屏 或键盘 ⬅️ ➡️ 移动，Shift 冲刺，Space 暂停，F 全屏",
+            footerHint: "控制指南: 拖动鼠标/触摸屏 或键盘 ⬅️ ➡️ 移动，Shift 冲刺 (5秒CD)，Space 暂停，F 全屏",
 
             // 品种
             breed_white: "纯白棉花糖",
@@ -303,10 +307,13 @@ const I18N = {
             shopTitle: "🏪 喵喵天降神秘小铺",
             shopCoinsLabel: "当前拥有甜点金币:",
             shopCoinsTip: "(捕获甜点、星星与天降礼盒可积累金币)",
+            tabSkins: "🐱 萌宠品种",
+            tabHats: "🎀 精选饰品",
+            tabSupplies: "💖 应急物资",
             shopSecSkins: "🐱 萌宠皮肤与品种",
             shopSecHats: "🎀 精致服饰与头饰",
             shopSecSupplies: "💖 局内应急实战补给",
-            shopClose: "关闭并继续游戏",
+            shopClose: "🐾 确定并继续游戏",
             equipped: "✨ 已穿戴",
             equipBtn: "🐾 换装装备",
             buyBtn: "🪙 购买",
@@ -315,6 +322,7 @@ const I18N = {
             unlockSkinToast: "成功解锁萌宠【{name}】并已更换！",
             unlockHatToast: "成功解锁饰品【{name}】并已佩戴！",
             equipToast: "已换装为【{name}】！",
+            dashCooldown: "⏳ 冲刺 5 秒冷却中 (还剩 {sec} 秒)",
 
             // 商城物品说明
             skin_white_desc: "纯真白雪，蓬松软萌经典白猫",
@@ -394,7 +402,7 @@ const I18N = {
             guideRuleFever: "🌟 FEVER 狂欢：接到彩虹星星或能量槽满 100% 触发 6 秒狂欢，双倍得分且屏蔽一切危险！",
             guideControlQ: "🕹️ 操作指南",
             guideControlMove: "平移移动：电脑端使用鼠标滑动或键盘 ⬅️ ➡️ / A D；手机/平板指尖按住屏幕滑动。",
-            guideControlDash: "💨 疾跑冲刺 (Dash)：按键盘 Shift 键、快速双击屏幕、或点击屏幕右下角的“冲刺”按键，猫咪瞬间高速冲刺！",
+            guideControlDash: "💨 疾跑冲刺 (Dash)：按键盘 Shift 键、快速双击屏幕、或点击屏幕右下角的“冲刺”按键，猫咪瞬间高速冲刺 (拥有 5 秒冷却时间 CD)！",
             guideShopQ: "🏪 喵喵商城与 💾 存档机制",
             guideShopDesc: "🎁 天降神秘小铺礼盒会在得分达到一定阶段时从空中飘落，接住即可开启商城并免费获赠 25 金币！暂停时可随时暂存对局进度，下次在主界面继续挑战！",
 
