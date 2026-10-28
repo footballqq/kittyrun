@@ -1,0 +1,11 @@
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
+*$py.class
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+test_screen*.png

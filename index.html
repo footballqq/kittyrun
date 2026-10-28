@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Kitty Run 🐾 Sweet Bakery Rush</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for cute typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;800&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Floating Background Decorative Bubbles -->
+    <div class="bg-decorations">
+        <div class="bg-bubble" style="width: 80px; height: 80px; background: #FFD1DC; left: 8%; animation-duration: 13s; animation-delay: 0s;"></div>
+        <div class="bg-bubble" style="width: 120px; height: 120px; background: #FFE5A3; left: 24%; animation-duration: 18s; animation-delay: 2s;"></div>
+        <div class="bg-bubble" style="width: 60px; height: 60px; background: #B8E8D4; left: 75%; animation-duration: 11s; animation-delay: 4s;"></div>
+        <div class="bg-bubble" style="width: 90px; height: 90px; background: #C5E3F6; left: 86%; animation-duration: 15s; animation-delay: 1s;"></div>
+        <div class="bg-bubble" style="width: 50px; height: 50px; background: #E8D7F1; left: 45%; animation-duration: 14s; animation-delay: 5s;"></div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="game-container" id="gameContainer">
+
+        <!-- Top Status Bar (HUD) -->
+        <header class="game-header">
+            <div class="hud-group-left">
+                <!-- Score -->
+                <div class="hud-pill" id="scorePill" title="Score">
+                    <span class="icon">🍰</span>
+                    <span id="scoreDisplay">0</span>
+                </div>
+
+                <!-- Sweet Coins -->
+                <div class="hud-pill" id="coinPill" title="Coins">
+                    <span class="icon">🪙</span>
+                    <span id="coinDisplay">0</span>
+                </div>
+
+                <!-- Timer Countdown Pill (for 60s mode) -->
+                <div class="hud-pill" id="timePill" title="Time Left">
+                    <span class="icon">⏱️</span>
+                    <span id="timeDisplay">60s</span>
+                </div>
+
+                <!-- Best Score -->
+                <div class="hud-pill" id="bestPill" title="Best Score">
+                    <span class="icon">👑</span>
+                    <span id="bestDisplay">0</span>
+                </div>
+
+                <!-- Combo Indicator -->
+                <div class="hud-combo hidden" id="hudCombo">
+                    <span>🔥</span>
+                    <span id="hudComboText">0 COMBO</span>
+                </div>
+            </div>
+
+            <!-- Lives -->
+            <div class="lives-container" id="livesContainer">
+                <span class="life-heart" id="heart1">💖</span>
+                <span class="life-heart" id="heart2">💖</span>
+                <span class="life-heart" id="heart3">💖</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="header-actions">
+                <button class="icon-btn" id="headerLangBtn" title="Language / 切换语言">🌐</button>
+                <button class="icon-btn" id="hudEndBtn" title="Settle Run Early" style="display: none; background: #FFF3E0; border-color: #FFA726;">🏳️</button>
+                <button class="icon-btn" id="guideBtn" title="How to Play">❓</button>
+                <button class="icon-btn" id="legendBtn" title="Items Compendium">📖</button>
+                <button class="icon-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+                <button class="icon-btn" id="muteBtn" title="Sound On/Off">🔔</button>
+                <button class="icon-btn" id="pauseBtn" title="Pause Game">⏸️</button>
+            </div>
+        </header>
+
+        <!-- Active Buffs Indicator Bar -->
+        <div class="active-buffs" id="activeBuffs"></div>
+
+        <!-- Canvas -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- On-screen Mobile Dash Button -->
+        <button class="mobile-dash-btn" id="mobileDashBtn" title="Dash!">
+            <span>💨</span>
+            <span data-i18n="dash">DASH</span>
+        </button>
+
+        <!-- Fever Energy Bar -->
+        <div class="fever-bar-container" title="Fever Energy">
+            <div class="fever-bar-fill" id="feverFill"></div>
+        </div>
+        <div class="fever-active-text" id="feverActiveText" data-i18n="feverText">✨ FEVER TIME! 2X SCORE ✨</div>
+
+        <!-- 1. Start Screen Overlay (Clean, Visual-First, Zero Scrollbar!) -->
+        <div class="overlay-screen" id="startScreen">
+
+            <!-- Top bar with Language Switcher -->
+            <div class="start-topbar">
+                <button class="start-lang-btn" id="langToggleBtn" title="Switch Language / 切换语言">
+                    <span class="lang-icon">🌐</span>
+                    <span id="langLabel">English</span>
+                </button>
+            </div>
+
+            <!-- Title -->
+            <div class="game-title" id="mainTitle">
+                <span>🐱</span> <span data-i18n="gameTitle">Kitty Run</span> <span>🍰</span>
+            </div>
+            <div class="game-subtitle" id="mainSubtitle" data-i18n="gameSubtitle">Sweet Bakery Rush · Catch Delicious Treats!</div>
+
+            <!-- Saved Game Resume Card (Compact, shown only when saved run exists) -->
+            <div class="saved-game-card hidden" id="savedGameCard">
+                <div class="saved-game-content">
+                    <span class="save-icon">💾</span>
+                    <div class="saved-game-text">
+                        <div class="save-title" data-i18n="savedTitle">Unfinished Game Found!</div>
+                        <div class="saved-game-info" id="savedGameInfo">60s · Score: 0 · ❤️x3</div>
+                    </div>
+                </div>
+                <div class="saved-game-actions">
+                    <button class="btn-candy small" id="loadGameBtn" data-i18n="loadGame">Resume ▶</button>
+                    <button class="btn-candy outline small" id="discardGameBtn" title="Discard">✕</button>
+                </div>
+            </div>
+
+            <!-- Hero Character Visual Stage (The Star!) -->
+            <div class="hero-character-stage">
+                <!-- Cycle Previous Kitty -->
+                <button class="stage-arrow-btn prev" id="prevBreedBtn" title="Previous Kitty">‹</button>
+
+                <!-- Mascot Preview with Cute Ring -->
+                <div class="mascot-preview-ring">
+                    <canvas id="mascotCanvas" width="150" height="150" style="width: 150px; height: 150px; display: block;"></canvas>
+                </div>
+
+                <!-- Cycle Next Kitty -->
+                <button class="stage-arrow-btn next" id="nextBreedBtn" title="Next Kitty">›</button>
+            </div>
+
+            <!-- Quick Breed Avatar Selector (Pure Visual Avatars, Zero Text Clutter!) -->
+            <div class="breed-avatars-row">
+                <button class="breed-avatar-btn active" data-breed="white" title="Marshmallow White">
+                    <span class="avatar-icon">🤍</span>
+                </button>
+                <button class="breed-avatar-btn" data-breed="orange" title="Sunny Ginger Tabby">
+                    <span class="avatar-icon">🍊</span>
+                </button>
+                <button class="breed-avatar-btn" data-breed="black" title="Tuxedo Black Cat">
+                    <span class="avatar-icon">🖤</span>
+                </button>
+                <button class="breed-avatar-btn" data-breed="capybara" title="Zen Capybara">
+                    <span class="avatar-icon">🦭</span>
+                </button>
+            </div>
+
+            <!-- Quick Hat / Accessory Bubbles -->
+            <div class="hat-bubbles-row">
+                <button class="hat-bubble-btn active" data-hat="bow" title="Pink Bow">🎀</button>
+                <button class="hat-bubble-btn" data-hat="chef" title="Chef Hat">👨‍🍳</button>
+                <button class="hat-bubble-btn" data-hat="flower" title="Sakura">🌸</button>
+                <button class="hat-bubble-btn" data-hat="crown" title="Crown">👑</button>
+                <button class="hat-bubble-btn" data-hat="tophat" title="Top Hat">🎩</button>
+                <button class="hat-bubble-btn" data-hat="glasses" title="Cool Shades">🕶️</button>
+                <button class="hat-bubble-btn" data-hat="none" title="Natural">🐱</button>
+            </div>
+
+            <!-- Game Mode Selector: Sleek Segmented Pill -->
+            <div class="mode-segmented-pill">
+                <button class="mode-seg-btn active" data-mode="timed" id="modeTimedBtn">
+                    <span data-i18n="modeTimed">⚡ 60s Sprint</span>
+                </button>
+                <button class="mode-seg-btn" data-mode="survival" id="modeSurvivalBtn">
+                    <span data-i18n="modeSurvival">💖 Endless</span>
+                </button>
+            </div>
+
+            <!-- Big Juicy PLAY Button -->
+            <button class="btn-play-hero" id="startBtn">
+                <span class="play-icon">▶</span>
+                <span data-i18n="play">PLAY NOW</span>
+            </button>
+
+            <!-- Secondary Toolbar: Clean, Compact Icon Buttons -->
+            <div class="start-toolbar">
+                <button class="tool-btn shop" id="openShopBtn" title="Shop">
+                    <span class="tool-icon">🏪</span>
+                    <span class="tool-label" data-i18n="shop">Shop</span>
+                </button>
+                <button class="tool-btn" id="openAchieveBtn" title="Badges">
+                    <span class="tool-icon">🏆</span>
+                    <span class="tool-label" data-i18n="badges">Badges</span>
+                </button>
+                <button class="tool-btn" id="openRecordsBtn" title="Stats">
+                    <span class="tool-icon">📜</span>
+                    <span class="tool-label" data-i18n="stats">Stats</span>
+                </button>
+                <button class="tool-btn" id="openGuideBtn" title="Help">
+                    <span class="tool-icon">❓</span>
+                    <span class="tool-label" data-i18n="help">Help</span>
+                </button>
+                <button class="tool-btn" id="openLegendBtn" title="Items">
+                    <span class="tool-icon">📖</span>
+                    <span class="tool-label" data-i18n="items">Items</span>
+                </button>
+            </div>
+
+            <!-- Minimalist Intuitive Visual Cue (No wordy banners!) -->
+            <div class="mini-rule-hint">
+                <span class="catch-pill" data-i18n="catchHint">Catch: 🍓 🍩 🐟 🧁 🥛 🧲 🛡️ ⏰ 🌟</span>
+                <span class="danger-pill" data-i18n="avoidHint">Avoid: 🌶️ 💣</span>
+            </div>
+        </div>
+
+        <!-- 2. Pause Screen Overlay -->
+        <div class="overlay-screen hidden" id="pauseScreen">
+            <h2 class="game-title" data-i18n="pauseTitle">☕ Game Paused</h2>
+            <p class="game-subtitle" data-i18n="pauseSubtitle">Kitty is taking a cozy nap...</p>
+            <div class="btn-row">
+                <button class="btn-candy" id="resumeBtn">
+                    <span data-i18n="resume">▶️ Resume</span>
+                </button>
+                <button class="btn-candy secondary" id="manualEndBtn">
+                    <span data-i18n="manualEnd">🏳️ Settle Early (Finish Run)</span>
+                </button>
+            </div>
+            <div class="btn-row" style="margin-top: 10px;">
+                <button class="btn-candy outline" id="saveAndExitBtn">
+                    <span data-i18n="saveAndExit">💾 Save Progress (Continue Later)</span>
+                </button>
+                <button class="btn-candy outline" id="pauseShopBtn" style="color: #E65100; border-color: #FFA726;">
+                    <span data-i18n="shop">🏪 Shop</span>
+                </button>
+            </div>
+            <div class="btn-row" style="margin-top: 10px;">
+                <button class="btn-candy outline" id="pauseGuideBtn">
+                    <span data-i18n="help">❓ Help</span>
+                </button>
+                <button class="btn-candy outline" id="pauseLegendBtn">
+                    <span data-i18n="items">📖 Items</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Game Over Screen Overlay -->
+        <div class="overlay-screen hidden" id="gameOverScreen">
+            <div class="gameover-title" id="gameOverTitle" data-i18n="gameOverTitle">😿 Game Over</div>
+            <p class="game-subtitle" id="gameOverReason" data-i18n="reasonLivesOut">Hearts ran out! Kitty needs a short rest!</p>
+
+            <div class="score-board">
+                <div class="score-row">
+                    <span data-i18n="finalScore">Final Score:</span>
+                    <span id="finalScore" style="color: #FF5A87; font-size: 20px;">0</span>
+                </div>
+                <div class="score-row">
+                    <span data-i18n="finalCombo">Max Combo:</span>
+                    <span id="finalCombo">0</span>
+                </div>
+                <div class="score-row highlight">
+                    <span data-i18n="finalBest">All-Time Best:</span>
+                    <div>
+                        <span id="finalBest">0</span>
+                        <span class="new-best-badge" id="newBestBadge" data-i18n="newBest">NEW BEST!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons: Play Again & Share & Records & Shop -->
+            <div class="btn-row">
+                <button class="btn-candy secondary" id="restartBtn">
+                    <span data-i18n="playAgain">🔄 Play Again</span>
+                </button>
+                <button class="btn-candy" id="gameOverShopBtn" style="background: linear-gradient(180deg, #FFB74D, #FF9800); box-shadow: 0 5px 0 #E65100, 0 8px 18px rgba(255, 152, 0, 0.35);">
+                    <span data-i18n="shop">🏪 Shop</span>
+                </button>
+                <button class="btn-candy" id="copyShareBtn">
+                    <span data-i18n="copyShare">📋 Copy Result</span>
+                </button>
+                <button class="btn-candy outline" id="posterBtn">
+                    <span data-i18n="sharePoster">🖼️ Share Poster</span>
+                </button>
+                <button class="btn-candy outline" id="gameOverRecordsBtn">
+                    <span data-i18n="stats">📜 Stats</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. Game Guide Modal (Detailed Rules) -->
+        <div class="modal-overlay hidden" id="guideModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title" data-i18n="guideTitle">❓ How to Play & Rules</div>
+                    <button class="modal-close-btn" id="closeGuideBtn">✕</button>
+                </div>
+
+                <div class="guide-section">
+                    <div class="guide-title" data-i18n="guideTimeQ">⏱️ How long is each game?</div>
+                    <div class="guide-content">
+                        <div class="guide-rule-card">
+                            <span class="rule-icon">⚡</span>
+                            <div>
+                                <strong data-i18n="guideTimeTimed">60s Sprint Challenge (Recommended):</strong>
+                                <div data-i18n="guideTimeTimedDesc">Fixed 1-minute sprint! Dash to grab as many treats as possible. Catching ⏰ Pocket Watch gives +5s extra time!</div>
+                            </div>
+                        </div>
+                        <div class="guide-rule-card" style="margin-top: 8px;">
+                            <span class="rule-icon">💖</span>
+                            <div>
+                                <strong data-i18n="guideTimeSurv">Classic Endless Survival:</strong>
+                                <div data-i18n="guideTimeSurvDesc">No time limit! You have 3 Hearts. Keep dodging hazards and catching sweets to chase world records!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <div class="guide-title" data-i18n="guideGoalQ">🎯 Scoring & Combo Mechanics</div>
+                    <div class="guide-content">
+                        <ul class="guide-list">
+                            <li data-i18n="guideRuleCombo">Combo Multiplier: Consecutive catches ramp up combo points up to 2.5x!</li>
+                            <li data-i18n="guideRuleMilestone">Milestone Bonuses: Reach 5/10/15/20 combos for massive +50/+150/+300/+500 bonus points! 20 combo grants a Free Shield!</li>
+                            <li data-i18n="guideRuleDrop">⚠️ Drop Penalty: Dropping any sweet treat immediately RESETS your combo to 0!</li>
+                            <li data-i18n="guideRuleFever">🌟 FEVER Time: Catching Rainbow Stars fills energy and triggers 6 seconds of double score with zero hazards!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <div class="guide-title" data-i18n="guideControlQ">🕹️ Controls</div>
+                    <div class="guide-content">
+                        <ul class="guide-list">
+                            <li data-i18n="guideControlMove">Movement: Drag with mouse/touch, or use ⬅️ ➡️ / A D on keyboard.</li>
+                            <li data-i18n="guideControlDash">💨 Dash: Press Shift, double tap canvas, or click the Dash button for an instant speed burst!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <div class="guide-title" data-i18n="guideShopQ">🏪 Boutique & 💾 Save System</div>
+                    <div class="guide-content">
+                        <div class="guide-rule-card">
+                            <span class="rule-icon">🎁</span>
+                            <div data-i18n="guideShopDesc">🎁 Mystery Boutique box drops from the sky every few hundred points! Catch it to open the shop & get 25 bonus coins. Pause anytime to save your run and resume later!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Legend Modal (Treats & Items Compendium) -->
+        <div class="modal-overlay hidden" id="legendModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title" data-i18n="legendTitle">📖 Treats & Items Compendium</div>
+                    <button class="modal-close-btn" id="closeLegendBtn">✕</button>
+                </div>
+
+                <!-- 1. Sweets -->
+                <div class="legend-category">
+                    <div class="legend-cat-title sweet" data-i18n="catSweets">🍰 Delicious Sweets (Catch to score)</div>
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <span class="icon">🍓</span>
+                            <span class="name" data-i18n="item_strawberry">Fresh Strawberry</span>
+                            <span class="desc" data-i18n="item_strawberry_desc">+10 pts · Sweet starter</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🍩</span>
+                            <span class="name" data-i18n="item_donut">Strawberry Donut</span>
+                            <span class="desc" data-i18n="item_donut_desc">+20 pts · Glazed sprinkles</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🐟</span>
+                            <span class="name" data-i18n="item_taiyaki">Golden Taiyaki</span>
+                            <span class="desc" data-i18n="item_taiyaki_desc">+30 pts · Crispy waffle fish</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🧁</span>
+                            <span class="name" data-i18n="item_cupcake">Cherry Cupcake</span>
+                            <span class="desc" data-i18n="item_cupcake_desc">+40 pts · Luxurious frosting</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Magic Powerups -->
+                <div class="legend-category">
+                    <div class="legend-cat-title magic" data-i18n="catMagic">🌟 Magic Powerups (Super Boosts)</div>
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <span class="icon">🥛</span>
+                            <span class="name" data-i18n="item_milk">Pure Milk</span>
+                            <span class="desc" data-i18n="item_milk_desc">+30 pts · Restores +1 Heart</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🧲</span>
+                            <span class="name" data-i18n="item_magnet">Catnip Magnet</span>
+                            <span class="desc" data-i18n="item_magnet_desc">Pulls sweets to kitty for 6s</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🛡️</span>
+                            <span class="name" data-i18n="item_shield">Rainbow Shield</span>
+                            <span class="desc" data-i18n="item_shield_desc">Blocks 1 hazard impact</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">⏰</span>
+                            <span class="name" data-i18n="item_clock">Pocket Watch</span>
+                            <span class="desc" data-i18n="item_clock_desc">Slow-mo 50% · +5s in 60s mode</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🌟</span>
+                            <span class="name" data-i18n="item_star">Rainbow Star</span>
+                            <span class="desc" data-i18n="item_star_desc">+50 pts · 6s Fever Rush</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="icon">🎁</span>
+                            <span class="name" data-i18n="item_shop">Sky Boutique</span>
+                            <span class="desc" data-i18n="item_shop_desc">+25 Coins · Opens shop modal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Hazards -->
+                <div class="legend-category">
+                    <div class="legend-cat-title danger" data-i18n="catHazards">❌ Dangerous Hazards (DO NOT TOUCH!)</div>
+                    <div class="legend-grid">
+                        <div class="legend-item hazard">
+                            <span class="icon">🌶️</span>
+                            <span class="name" data-i18n="item_chili">Devil Chili</span>
+                            <span class="desc" data-i18n="item_chili_desc">DANGER! -1 Heart & Combo break</span>
+                        </div>
+                        <div class="legend-item hazard">
+                            <span class="icon">💣</span>
+                            <span class="name" data-i18n="item_bomb">Naughty Bomb</span>
+                            <span class="desc" data-i18n="item_bomb_desc">DANGER! -1 Heart & Combo break</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Achievements Modal (Badges) -->
+        <div class="modal-overlay hidden" id="achieveModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title" data-i18n="achieveTitle">🏆 Kitty Hall of Fame</div>
+                    <button class="modal-close-btn" id="closeAchieveBtn">✕</button>
+                </div>
+                <div class="achievement-grid" id="achieveList">
+                    <!-- Dynamic rendering by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Share Poster Modal -->
+        <div class="modal-overlay hidden" id="posterModal">
+            <div class="modal-card" style="text-align: center;">
+                <div class="modal-header">
+                    <div class="modal-title" data-i18n="sharePoster">🖼️ Share Poster</div>
+                    <button class="modal-close-btn" id="closePosterBtn">✕</button>
+                </div>
+                <div class="poster-preview-container">
+                    <canvas id="posterCanvas" width="400" height="560"></canvas>
+                    <div class="btn-row">
+                        <button class="btn-candy" id="downloadPosterBtn">
+                            <span data-i18n="downloadPoster">💾 Save Poster Image</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Player Records & History Modal -->
+        <div class="modal-overlay hidden" id="recordsModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title" data-i18n="statsTitle">📜 Career Records & Match History</div>
+                    <button class="modal-close-btn" id="closeRecordsBtn">✕</button>
+                </div>
+
+                <!-- Career Overview Cards -->
+                <div class="career-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-num" id="statTotalGames">0</div>
+                        <div class="stat-label" data-i18n="statTotalGames">Total Games</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🍰</div>
+                        <div class="stat-num" id="statTotalSweets">0</div>
+                        <div class="stat-label" data-i18n="statTotalSweets">Sweets Caught</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-num" id="statTimedBest">0</div>
+                        <div class="stat-label" data-i18n="statTimedBest">60s Sprint Best</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💖</div>
+                        <div class="stat-num" id="statSurvivalBest">0</div>
+                        <div class="stat-label" data-i18n="statSurvivalBest">Endless Best</div>
+                    </div>
+                </div>
+
+                <!-- History Matches Section -->
+                <div class="history-section-header">
+                    <div class="history-title" data-i18n="recentHistory">📅 Recent Match Logs (Saved Locally)</div>
+                    <button class="clear-records-btn" id="clearRecordsBtn" data-i18n="clearHistory">🗑️ Clear History</button>
+                </div>
+
+                <div class="history-list" id="historyList">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Sky Drop Boutique & Shop Modal -->
+        <div class="modal-overlay hidden" id="shopModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title" data-i18n="shopTitle">🏪 Kitty Boutique</div>
+                    <button class="modal-close-btn" id="closeShopBtn">✕</button>
+                </div>
+
+                <!-- Currency Bar -->
+                <div class="shop-currency-bar">
+                    <span data-i18n="shopCoinsLabel">Sweet Coins:</span>
+                    <span class="shop-coin-num" id="shopCoinsVal">0</span>
+                    <span class="shop-tip" data-i18n="shopCoinsTip">(Catch treats & boxes to earn coins)</span>
+                </div>
+
+                <!-- Category 1: Skins -->
+                <div class="shop-section">
+                    <div class="shop-sec-title" data-i18n="shopSecSkins">🐱 Kitty Breeds & Skins</div>
+                    <div class="shop-grid" id="shopSkinsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Category 2: Hats -->
+                <div class="shop-section">
+                    <div class="shop-sec-title" data-i18n="shopSecHats">🎀 Hats & Accessories</div>
+                    <div class="shop-grid" id="shopHatsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Category 3: Battle Supplies -->
+                <div class="shop-section">
+                    <div class="shop-sec-title" data-i18n="shopSecSupplies">💖 Battle Emergency Supplies</div>
+                    <div class="shop-grid" id="shopSuppliesGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="btn-row" style="margin-top: 14px;">
+                    <button class="btn-candy" id="shopConfirmBtn">
+                        <span data-i18n="shopClose">🐾 Close & Play</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Bottom keyboard hint -->
+    <div class="footer-hint" data-i18n="footerHint">
+        Controls: Drag Mouse / Touch or use Arrow Keys ⬅️ ➡️, Shift to Dash, Space to Pause, F for Fullscreen
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="i18n.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
